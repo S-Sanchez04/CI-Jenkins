@@ -66,21 +66,21 @@ pipeline {
         stage('Update Deployment Manifest') {
             steps {
                 script {
-                    sh """
+                    sh '''
                     rm -rf ${DEPLOYMENT_PATH}
                     git clone ${DEPLOYMENT_REPO} ${DEPLOYMENT_PATH}
-                    """
+                    '''
 
                     sh "sed -i 's|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
                     cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
 
                     // Hacer commit y push de los cambios
                     dir("${DEPLOYMENT_PATH}") {
-                        sh """
+                        sh '''
                         git add -A
                         git commit --allow-empty -m 'Update image tag to ${env.NEW_TAG}'
                         git push origin main
-                        """
+                        '''
                     }
                 }
             }
