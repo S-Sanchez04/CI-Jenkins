@@ -16,10 +16,12 @@ pipeline {
         stage('Get Latest Tag') {
             steps {
                 script {
-                    def latestTag = bat(script: '@echo off && curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | C:/ProgramData/chocolatey/bin/jq.exe -r ".results | sort_by(.name) | .[-1].name"', returnStdout: true).trim()
-           
-                    
-                    def newTag = latestTag.isInteger() ? (latestTag.toInteger() + 1) : 1  
+                    def latestTag = bat(script: '''@echo off
+curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" > tags.json
+C:/ProgramData/chocolatey/bin/jq.exe -r ".results | sort_by(.name) | .[-1].name" tags.json
+                    ''', returnStdout: true).trim()
+
+                    def newTag = latestTag.isNumber() ? (latestTag.toInteger() + 1) : 1  
                     env.NEW_TAG = newTag.toString()
                     echo "Nuevo tag: ${env.NEW_TAG}"
                 }
@@ -37,12 +39,12 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    bat "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                    bat "echo ${DOCKERHUB_CREDENTIALS} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                 }
             }
         }
 
-        stage('Pubat Docker Image') {
+        stage('Push Docker Image') {  // Corregido nombre de la etapa
             steps {
                 script {
                     bat "docker push ${IMAGE_NAME}:${env.NEW_TAG}"
