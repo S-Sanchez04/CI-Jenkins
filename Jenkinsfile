@@ -72,7 +72,7 @@ pipeline {
                     '''
 
                     sh "sed -i 's|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
-                    cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+                    cat "${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
 
                     // Hacer commit y push de los cambios
                     dir("${DEPLOYMENT_PATH}") {
