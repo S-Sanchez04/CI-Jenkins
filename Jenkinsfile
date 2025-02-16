@@ -27,11 +27,14 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat """
-                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    set DOCKER_CLI_ACI=0
+                    echo Logging in as %DOCKER_USER%
+                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
                     """
-                    }
                 }
+            }
         }
+
 
         stage('Checkout') {
             steps {
