@@ -68,12 +68,14 @@ pipeline {
                 script {
 
                     sh """
-                        awk -v new_tag="${env.NEW_TAG}" '
+                        set -e
+                        awk -v new_tag=1.9 '
                             /image: ssanchez04\\/ci-jenkins:/ {sub(/ssanchez04\\/ci-jenkins:[0-9]+\\.[0-9]+/, "ssanchez04/ci-jenkins:" new_tag)}
                             {print}
-                        ' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE} > temp.yaml && mv temp.yaml ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
-                        cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+                        ' /tmp/k8s-manifests/api-deployment.yaml > /tmp/k8s-manifests/api-deployment.tmp
+                        mv /tmp/k8s-manifests/api-deployment.tmp /tmp/k8s-manifests/api-deployment.yaml
                     """
+
 
 
                     // Moverse al directorio clonado para configurar Git
@@ -81,6 +83,7 @@ pipeline {
                         withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                             sh """
                             git remote set-url origin https://${GITHUB_TOKEN}@github.com/S-Sanchez04/CI-K8s-Manifests.git
+                            git pull --rebase origin main
                             git add -A
                             git commit --allow-empty -m "Update image tag to ${env.NEW_TAG}"
                             git push origin main
