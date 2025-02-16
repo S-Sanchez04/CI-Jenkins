@@ -4,6 +4,7 @@ FROM python:3.11
 # Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
+RUN python -m pip install --upgrade pip setuptools wheel
 
 # Instalar dependencias antes de copiar todo el código
 RUN python -m pip install fastapi uvicorn motor --timeout=60
