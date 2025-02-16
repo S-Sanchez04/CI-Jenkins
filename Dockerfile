@@ -4,14 +4,14 @@ FROM python:3.11
 # Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar los archivos del proyecto
-COPY . .
-
+# Copiar solo requirements.txt primero (para aprovechar la caché de Docker)
 COPY requirements.txt .
 
-RUN python -m pip install --no-cache-dir --verbose -i https://pypi.org/simple -r requirements.txt
+# Instalar dependencias antes de copiar todo el código
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
-
+# Ahora copiar el resto del código
+COPY . .
 
 # Exponer el puerto en el que correrá FastAPI
 EXPOSE 8000
