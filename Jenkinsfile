@@ -7,18 +7,21 @@ pipeline {
     }
 
 
-    stage('Docker Login') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-            bat """
-            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-            """
-            }
-        }
-    }
+    
 
 
     stages {
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat """
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    """
+                    }
+                }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/S-Sanchez04/CI-Jenkins.git'
