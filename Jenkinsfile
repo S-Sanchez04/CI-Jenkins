@@ -67,8 +67,12 @@ C:/ProgramData/chocolatey/bin/jq.exe -r ".results | sort_by(.name) | .[-1].name"
 
         stage('Login to Docker Hub') {
             steps {
-                script {
-                    bat "echo ${DOCKERHUB_CREDENTIALS} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat """
+                    set DOCKER_CLI_ACI=0
+                    echo Logging in as %DOCKER_USER%
+                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                    """
                 }
             }
         }
