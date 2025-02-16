@@ -67,8 +67,12 @@ pipeline {
             steps {
                 script {
 
-                    sh "sed -i 's|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
-                    sh "cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
+                    sh """
+                        sed -i "s|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g" ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+                        cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+                        grep "ssanchez04/ci-jenkins" ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+                    """
+
 
                     // Moverse al directorio clonado para configurar Git
                     dir("${DEPLOYMENT_PATH}") {
