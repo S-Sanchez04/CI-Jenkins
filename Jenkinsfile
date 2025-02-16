@@ -6,7 +6,7 @@ pipeline {
         IMAGE_NAME = "ssanchez04/ci-jenkins"
         DEPLOYMENT_REPO = "https://github.com/S-Sanchez04/CI-K8s-Manifests.git"  // Repositorio de YAMLs
         DEPLOYMENT_PATH = "/tmp/k8s-manifests"
-        DEPLOYMENT_FILE = "api:deployment.yaml"
+        DEPLOYMENT_FILE = "api-deployment.yaml"
     }
 
     stages {
@@ -85,12 +85,6 @@ pipeline {
             }
         }
 
-        stage('Cleanup') {
-            steps {
-                script {
-                    sh "docker rmi ${IMAGE_NAME}:${env.NEW_TAG}"
-                }
-            }
-        }
+       
     }
 }
