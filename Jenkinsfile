@@ -21,7 +21,7 @@ pipeline {
                 script {
                     def latestTag = sh(script: '''
                         curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | \
-                        jq -r '[.results[].name | select(test("^[0-9]+\\.[0-9]+$")) | split("\\.") | map(tonumber)] | sort | last | join(".")'
+                        jq -r '[.results[].name | select(test("^[0-9]+\\.[0-9]+$")) | map(tonumber)] | sort | last | join(".")'
                        ''', returnStdout: true).trim()
 
                     def newTag
