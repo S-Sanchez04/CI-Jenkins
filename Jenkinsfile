@@ -1,25 +1,62 @@
 pipeline {
-    agent any 
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub-token')
+        IMAGE_NAME = "ssanchez04/ci-jenkins"
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/S-Sanchez04/CI-Jenkins.git'
+                git branch: 'main', url: 'https://github.com/S-Sanchez04/CI-Jenkins.git'
             }
         }
-        stage('Build') {
+
+        stage('Get Latest Tag') {
             steps {
-                echo 'Construyendo la aplicación...'
+                script {
+                    def latestTag = sh(script: """
+                        curl -s "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | 
+                        jq -r '.results | sort_by(.name) | .[-1].name' || echo "0"
+                    """, returnStdout: true).trim()
+                    
+                    def newTag = latestTag.isInteger() ? (latestTag.toInteger() + 1) : 1  
+                    env.NEW_TAG = newTag.toString()
+                    echo "Nuevo tag: ${env.NEW_TAG}"
+                }
             }
         }
-        stage('Test') {
+
+        stage('Build Docker Image') {
             steps {
-                echo 'Ejecutando pruebas...'
+                script {
+                    sh "docker build -t ${IMAGE_NAME}:${env.NEW_TAG} ."
+                }
             }
         }
-        stage('Deploy') {
+
+        stage('Login to Docker Hub') {
             steps {
-                echo 'Desplegando la aplicación...'
+                script {
+                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    sh "docker push ${IMAGE_NAME}:${env.NEW_TAG}"
+                }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh "docker rmi ${IMAGE_NAME}:${env.NEW_TAG}"
+                }
             }
         }
     }
