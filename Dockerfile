@@ -4,11 +4,11 @@ FROM python:3.11
 # Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Instalar dependencias con logs detallados
-RUN python -m pip install --no-cache-dir --verbose -r requirements.txt
-
-# Copiar el resto de los archivos del proyecto
+# Copiar los archivos del proyecto
 COPY . .
+
+# Instalar dependencias con logs detallados
+RUN python -m pip install --no-cache-dir --verbose fastapi uvicorn motor
 
 # Exponer el puerto en el que correrá FastAPI
 EXPOSE 8000
