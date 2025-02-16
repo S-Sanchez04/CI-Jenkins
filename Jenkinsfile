@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')
         IMAGE_NAME = "ssanchez04/ci-jenkins"
-        DEPLOYMENT_REPO = "git@github.com:S-Sanchez04/CI-K8s-Manifests.git"  // Repositorio de YAMLs
+        DEPLOYMENT_REPO = "https://github.com/S-Sanchez04/CI-K8s-Manifests.git"  // Repositorio de YAMLs
         DEPLOYMENT_PATH = "/tmp/k8s-manifests"
         DEPLOYMENT_FILE = "k8s/deployment.yaml"
     }
@@ -66,13 +66,11 @@ pipeline {
         stage('Update Deployment Manifest') {
             steps {
                 script {
-                    // Clonar el repositorio de manifiestos de Kubernetes
                     sh """
                     rm -rf ${DEPLOYMENT_PATH}
                     git clone ${DEPLOYMENT_REPO} ${DEPLOYMENT_PATH}
                     """
 
-                    // Modificar el archivo de deployment con el nuevo tag
                     sh "sed -i 's|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
 
                     // Hacer commit y push de los cambios
