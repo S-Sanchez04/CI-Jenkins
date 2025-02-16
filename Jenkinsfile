@@ -74,17 +74,26 @@ pipeline {
                     sh "sed -i 's|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
                     sh "cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
 
-                    // Hacer commit y push de los cambios
+                    // Moverse al directorio clonado para configurar Git
                     dir("${DEPLOYMENT_PATH}") {
                         sh '''
-                        git add -A
-                        git commit --allow-empty -m 'Update image tag to ${env.NEW_TAG}'
-                        git push origin main
+                        git config user.name "Jenkins"
+                        git config user.email "jenkins@yourdomain.com"
                         '''
+
+                        withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                            sh '''
+                            git remote set-url origin https://${GITHUB_TOKEN}@github.com/<YOUR_REPO_OWNER>/<YOUR_REPO>.git
+                            git add -A
+                            git commit --allow-empty -m "Update image tag to ${env.NEW_TAG}"
+                            git push origin main
+                            '''
+                        }
                     }
                 }
             }
         }
+
 
        
     }
