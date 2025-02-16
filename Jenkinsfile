@@ -20,8 +20,10 @@ pipeline {
             steps {
                 script {
                     def latestTag = sh(script: '''
-                        curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | jq -r ".results | sort_by(.name) | .[-1].name"
+                        curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | 
+                        jq -r '[.results[].name | select(test("^[0-9]+\\.[0-9]+$"))] | map(split(".") | map(tonumber)) | sort | last | join(".")'
                     ''', returnStdout: true).trim()
+
 
                     def newTag
                     if (latestTag =~ /^\d+\.\d+$/) {  
@@ -68,15 +70,13 @@ pipeline {
                 script {
 
                     sh """
-                        echo "Antes de sed:"
-                        cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
-
-                        echo "Ejecutando sed..."
-                        sed -i "s|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g" ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
-
-                        echo "Después de sed:"
+                        awk -v new_tag="${env.NEW_TAG}" '
+                            /image: ssanchez04\\/ci-jenkins:/ {sub(/ssanchez04\\/ci-jenkins:[0-9]+\\.[0-9]+/, "ssanchez04/ci-jenkins:" new_tag)}
+                            {print}
+                        ' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE} > temp.yaml && mv temp.yaml ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
                         cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
                     """
+
 
 
                     // Moverse al directorio clonado para configurar Git
