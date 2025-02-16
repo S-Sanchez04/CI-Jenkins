@@ -20,8 +20,7 @@ pipeline {
             steps {
                 script {
                     def latestTag = sh(script: '''
-                        curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | \
-                        jq -r '[.results[].name | select(test("^[0-9]+\\\\.[0-9]+$")) | split(".") | map(tonumber)] | sort | last | join(".")]'
+                        curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | jq -r ".results | sort_by(.name) | .[-1].name"
                     ''', returnStdout: true).trim()
 
                     def newTag
@@ -37,7 +36,6 @@ pipeline {
                     env.NEW_TAG = newTag
                     echo "Nuevo tag: ${env.NEW_TAG}"
                 }
-
             }
         }
 
@@ -76,7 +74,6 @@ pipeline {
                         ' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE} > temp.yaml && mv temp.yaml ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
                         cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
                     """
-
 
 
                     // Moverse al directorio clonado para configurar Git
