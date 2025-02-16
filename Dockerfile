@@ -7,7 +7,7 @@ WORKDIR /app
 RUN python -m pip install --upgrade pip setuptools wheel
 
 # Instalar dependencias antes de copiar todo el código
-RUN python -m pip install fastapi uvicorn motor --timeout=60
+RUN python -m pip install --timeout=60 fastapi uvicorn motor 
 
 # Ahora copiar el resto del código
 COPY . .
