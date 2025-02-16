@@ -7,8 +7,11 @@ WORKDIR /app
 # Copiar los archivos del proyecto
 COPY . .
 
-# Instalar dependencias con logs detallados
-RUN python -m pip install --no-cache-dir --verbose fastapi uvicorn motor
+COPY requirements.txt .
+
+RUN python -m pip install --no-cache-dir --verbose -i https://pypi.org/simple -r requirements.txt
+
+
 
 # Exponer el puerto en el que correrá FastAPI
 EXPOSE 8000
