@@ -20,22 +20,23 @@ pipeline {
             steps {
                 script {
                     def latestTag = sh(script: '''
-                        curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | jq -r ".results | sort_by(.name) | .[-1].name"
+                        curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | jq -r '[.results[].name | select(test("^[0-9]+\\.[0-9]+$"))] | sort | last // empty'
                     ''', returnStdout: true).trim()
 
                     def newTag
-                    if (latestTag =~ /^\d+\.\d+$/) {  
+                    if (latestTag == "" || !(latestTag =~ /^\d+\.\d+$/)) {
+                        newTag = "1.1"  // Si no encuentra tags válidos, empieza en 1.1
+                    } else {
                         def parts = latestTag.split("\\.")
                         def major = parts[0].toInteger()
                         def minor = parts[1].toInteger() + 1
                         newTag = "${major}.${minor}"
-                    } else {
-                        newTag = "1.1"  
                     }
 
                     env.NEW_TAG = newTag
                     echo "Nuevo tag: ${env.NEW_TAG}"
-                }
+}
+
             }
         }
 
@@ -69,12 +70,13 @@ pipeline {
 
                     sh """
                         set -e
-                        awk -v new_tag=1.9 '
+                        awk -v new_tag=${env.NEW_TAG} '
                             /image: ssanchez04\\/ci-jenkins:/ {sub(/ssanchez04\\/ci-jenkins:[0-9]+\\.[0-9]+/, "ssanchez04/ci-jenkins:" new_tag)}
                             {print}
                         ' /tmp/k8s-manifests/api-deployment.yaml > /tmp/k8s-manifests/api-deployment.tmp
                         mv /tmp/k8s-manifests/api-deployment.tmp /tmp/k8s-manifests/api-deployment.yaml
                     """
+
 
 
 
