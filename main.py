@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 import os
 
+#Cambio x
 app = FastAPI()
 
 # Obtener la URI de MongoDB desde la variable de entorno
