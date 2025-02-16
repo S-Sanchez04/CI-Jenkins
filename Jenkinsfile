@@ -16,7 +16,7 @@ pipeline {
         stage('Get Latest Tag') {
             steps {
                 script {
-                    def latestTag = sh(script: """
+                    def latestTag = bat(script: """
                         curl -s "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | 
                         jq -r '.results | sort_by(.name) | .[-1].name' || echo "0"
                     """, returnStdout: true).trim()
@@ -31,7 +31,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${IMAGE_NAME}:${env.NEW_TAG} ."
+                    bat "docker build -t ${IMAGE_NAME}:${env.NEW_TAG} ."
                 }
             }
         }
@@ -39,15 +39,15 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                    bat "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Pubat Docker Image') {
             steps {
                 script {
-                    sh "docker push ${IMAGE_NAME}:${env.NEW_TAG}"
+                    bat "docker push ${IMAGE_NAME}:${env.NEW_TAG}"
                 }
             }
         }
@@ -55,7 +55,7 @@ pipeline {
         stage('Cleanup') {
             steps {
                 script {
-                    sh "docker rmi ${IMAGE_NAME}:${env.NEW_TAG}"
+                    bat "docker rmi ${IMAGE_NAME}:${env.NEW_TAG}"
                 }
             }
         }
