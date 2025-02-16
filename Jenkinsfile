@@ -68,9 +68,14 @@ pipeline {
                 script {
 
                     sh """
-                        sed -i "s|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g" ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+                        echo "Antes de sed:"
                         cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
-                        grep "ssanchez04/ci-jenkins" ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+
+                        echo "Ejecutando sed..."
+                        sed -i "s|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g" ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
+
+                        echo "Después de sed:"
+                        cat ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}
                     """
 
 
