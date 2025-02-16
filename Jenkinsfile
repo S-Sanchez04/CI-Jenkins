@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub-token')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')
         IMAGE_NAME = "ssanchez04/ci-jenkins"
     }
 
