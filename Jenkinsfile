@@ -76,11 +76,6 @@ pipeline {
 
                     // Moverse al directorio clonado para configurar Git
                     dir("${DEPLOYMENT_PATH}") {
-                        sh '''
-                        git config user.name "Jenkins"
-                        git config user.email "jenkins@yourdomain.com"
-                        '''
-
                         withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                             sh '''
                             git remote set-url origin https://${GITHUB_TOKEN}@github.com/S-Sanchez04/CI-K8s-Manifests.gi
