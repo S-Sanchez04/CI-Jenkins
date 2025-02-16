@@ -4,11 +4,9 @@ FROM python:3.11
 # Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar solo requirements.txt primero (para aprovechar la caché de Docker)
-COPY requirements.txt .
 
 # Instalar dependencias antes de copiar todo el código
-RUN python -m pip install -r requirements.txt
+RUN python -m pip install fastapi uvicorn motor --timeout=60
 
 # Ahora copiar el resto del código
 COPY . .
