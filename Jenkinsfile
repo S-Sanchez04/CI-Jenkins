@@ -16,10 +16,8 @@ pipeline {
         stage('Get Latest Tag') {
             steps {
                 script {
-                    def latestTag = bat(script: """
-                        curl -s "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | 
-                        jq -r '.results | sort_by(.name) | .[-1].name' || echo "0"
-                    """, returnStdout: true).trim()
+                    def latestTag = bat(script: '@echo off && curl -s "https://hub.docker.com/v2/repositories/ssanchez04/ci-jenkins/tags/?page_size=100" | jq -r ".results | sort_by(.name) | .[-1].name"', returnStdout: true).trim()
+           
                     
                     def newTag = latestTag.isInteger() ? (latestTag.toInteger() + 1) : 1  
                     env.NEW_TAG = newTag.toString()
