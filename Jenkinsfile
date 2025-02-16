@@ -4,10 +4,13 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')
         IMAGE_NAME = "ssanchez04/ci-jenkins"
+        DEPLOYMENT_REPO = "git@github.com:S-Sanchez04/CI-K8s-Manifests.git"  // Repositorio de YAMLs
+        DEPLOYMENT_PATH = "/tmp/k8s-manifests"
+        DEPLOYMENT_FILE = "k8s/deployment.yaml"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Source Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/S-Sanchez04/CI-Jenkins.git'
             }
@@ -47,7 +50,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
                 }
             }
         }
@@ -56,6 +59,30 @@ pipeline {
             steps {
                 script {
                     sh "docker push ${IMAGE_NAME}:${env.NEW_TAG}"
+                }
+            }
+        }
+
+        stage('Update Deployment Manifest') {
+            steps {
+                script {
+                    // Clonar el repositorio de manifiestos de Kubernetes
+                    sh """
+                    rm -rf ${DEPLOYMENT_PATH}
+                    git clone ${DEPLOYMENT_REPO} ${DEPLOYMENT_PATH}
+                    """
+
+                    // Modificar el archivo de deployment con el nuevo tag
+                    sh "sed -i 's|ssanchez04/ci-jenkins:[^ ]*|ssanchez04/ci-jenkins:${env.NEW_TAG}|g' ${DEPLOYMENT_PATH}/${DEPLOYMENT_FILE}"
+
+                    // Hacer commit y push de los cambios
+                    dir("${DEPLOYMENT_PATH}") {
+                        sh """
+                        git add ${DEPLOYMENT_FILE}
+                        git commit -m 'Update image tag to ${env.NEW_TAG}'
+                        git push origin main
+                        """
+                    }
                 }
             }
         }
