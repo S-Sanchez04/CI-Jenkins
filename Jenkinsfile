@@ -77,12 +77,12 @@ pipeline {
                     // Moverse al directorio clonado para configurar Git
                     dir("${DEPLOYMENT_PATH}") {
                         withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                            sh '''
-                            git remote set-url origin https://${GITHUB_TOKEN}@github.com/S-Sanchez04/CI-K8s-Manifests.gi
+                            sh """
+                            git remote set-url origin https://${GITHUB_TOKEN}@github.com/S-Sanchez04/CI-K8s-Manifests.git
                             git add -A
                             git commit --allow-empty -m "Update image tag to ${env.NEW_TAG}"
                             git push origin main
-                            '''
+                            """
                         }
                     }
                 }
