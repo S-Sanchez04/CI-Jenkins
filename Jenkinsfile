@@ -83,7 +83,7 @@ pipeline {
 
                         withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                             sh '''
-                            git remote set-url origin https://${GITHUB_TOKEN}@github.com/<YOUR_REPO_OWNER>/<YOUR_REPO>.git
+                            git remote set-url origin https://${GITHUB_TOKEN}@github.com/S-Sanchez04/CI-K8s-Manifests.gi
                             git add -A
                             git commit --allow-empty -m "Update image tag to ${env.NEW_TAG}"
                             git push origin main
