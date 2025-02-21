@@ -70,21 +70,17 @@ pipeline {
         stage('Update Deployment Manifest') {
             steps {
                 script {
-
+                    // Actualiza el manifiesto (asegúrate de que /tmp/k8s-manifests/ exista)
                     sh """
                         set -e
-                        mkdir -p /tmp/k8s-manifests
                         awk -v new_tag=${env.NEW_TAG} '
                             /image: ssanchez04\\/ci-jenkins:/ {sub(/ssanchez04\\/ci-jenkins:[0-9]+\\.[0-9]+/, "ssanchez04/ci-jenkins:" new_tag)}
                             {print}
                         ' /tmp/k8s-manifests/api-deployment.yaml > /tmp/k8s-manifests/api-deployment.tmp
                         mv /tmp/k8s-manifests/api-deployment.tmp /tmp/k8s-manifests/api-deployment.yaml
                     """
-
-
-
-
-                    // Moverse al directorio clonado para configurar Git
+                    
+                    // Asegúrate de que DEPLOYMENT_PATH ya exista (se clonó en el stage anterior)
                     dir("${DEPLOYMENT_PATH}") {
                         withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                             sh """
@@ -96,10 +92,10 @@ pipeline {
                             """
                         }
                     }
-
                 }
             }
         }
+
 
 
        
