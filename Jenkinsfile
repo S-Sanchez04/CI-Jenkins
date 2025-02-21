@@ -73,6 +73,7 @@ pipeline {
 
                     sh """
                         set -e
+                        mkdir -p /tmp/k8s-manifests
                         awk -v new_tag=${env.NEW_TAG} '
                             /image: ssanchez04\\/ci-jenkins:/ {sub(/ssanchez04\\/ci-jenkins:[0-9]+\\.[0-9]+/, "ssanchez04/ci-jenkins:" new_tag)}
                             {print}
