@@ -73,6 +73,8 @@ pipeline {
                     // Actualiza el manifiesto (asegúrate de que /tmp/k8s-manifests/ exista)
                     sh """
                         set -e
+                                git remote set-url origin https://${GITHUB_TOKEN}@github.com/S-Sanchez04/CI-K8s-Manifests.git
+                                git pull --rebase --autostash origin main
                         awk -v new_tag=${env.NEW_TAG} '
                             /image: ssanchez04\\/ci-jenkins:/ {sub(/ssanchez04\\/ci-jenkins:[0-9]+\\.[0-9]+/, "ssanchez04/ci-jenkins:" new_tag)}
                             {print}
